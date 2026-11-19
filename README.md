@@ -33,7 +33,7 @@ this exact TPM.
 
 ```
 ./tpm-secret unlock NAME [NAME ...] [--ttl MINUTES]   # cache one or more (auto-starts the agent)
-./tpm-secret agent-status                  # see what's cached and for how long
+./tpm-secret agent-status [NAME]            # check a count, or a specific secret's status
 ./tpm-secret lock [NAME]                   # clear the cache early
 ```
 
@@ -43,6 +43,12 @@ more examples.
 
 The agent only lives in memory for your session - nothing is written to
 disk, and everything is gone on logout/reboot.
+
+`agent-status` with no name only reports a count and the next expiry, not
+which secrets are cached - any process running as you can reach the agent
+socket, so a plain, unauthenticated listing of cached names would hand that
+same process a ready-made target list of which secrets it can currently
+read for free. Check a specific secret with `agent-status NAME` instead.
 
 ## Tests
 

@@ -40,18 +40,22 @@ echo "== agent: unlock, get, status, lock =="
 "$here/tpm-secret-agent" &
 agent_pid=$!
 sleep 0.3
-printf 'secretpin\n' | setsid "$here/tpm-secret" unlock pinned --ttl 1
+printf 'secretpin\n' | setsid "$here/tpm-secret" unlock pinned --ttl 5
 [[ "$(tpm_secret get pinned)" == "p4ssword" ]] || fail "cached value mismatch"
-tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinned'"
+tpm_secret agent-status pinned | grep -Eqx "pinned: unlocked, [0-9]+m remaining" || fail "agent-status pinned did not report unlocked"
+tpm_secret agent-status pinned2 | grep -qx "pinned2: locked" || fail "agent-status pinned2 should still be locked"
+tpm_secret agent-status | grep -Eqx "1 secret cached, next expiry in [0-9]+m\." || fail "agent-status summary missing count"
 tpm_secret lock pinned
-tpm_secret agent-status | grep -qx "No secrets currently cached." || fail "lock did not clear cache"
+tpm_secret agent-status pinned | grep -qx "pinned: locked" || fail "lock did not clear cache"
+tpm_secret agent-status | grep -qx "No secrets currently cached." || fail "agent-status summary did not clear"
 
 echo "== agent: unlock several secrets at once =="
-printf 'secretpin\nsecretpin2\n' | setsid "$here/tpm-secret" unlock pinned pinned2 --ttl 1
+printf 'secretpin\nsecretpin2\n' | setsid "$here/tpm-secret" unlock pinned pinned2 --ttl 5
 [[ "$(tpm_secret get pinned)" == "p4ssword" ]] || fail "cached value mismatch for 'pinned'"
 [[ "$(tpm_secret get pinned2)" == "p4ssword2" ]] || fail "cached value mismatch for 'pinned2'"
-tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinned'"
-tpm_secret agent-status | grep -q "^pinned2:" || fail "agent-status missing 'pinned2'"
+tpm_secret agent-status pinned | grep -Eqx "pinned: unlocked, [0-9]+m remaining" || fail "agent-status pinned did not report unlocked"
+tpm_secret agent-status pinned2 | grep -Eqx "pinned2: unlocked, [0-9]+m remaining" || fail "agent-status pinned2 did not report unlocked"
+tpm_secret agent-status | grep -Eqx "2 secrets cached, next expiry in [0-9]+m\." || fail "agent-status summary missing count"
 tpm_secret lock
 
 echo "== delete =="
