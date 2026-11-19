@@ -11,6 +11,11 @@ this exact TPM.
   ```
   sudo usermod -aG tss "$USER"
   ```
+  This takes effect on your next login. To use it immediately without
+  logging out, start a new shell with the group active:
+  ```
+  newgrp tss
+  ```
 
 ## Usage
 
