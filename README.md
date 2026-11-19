@@ -32,10 +32,14 @@ this exact TPM.
 (default 6h), so you don't retype the PIN on every `get`:
 
 ```
-./tpm-secret unlock NAME [NAME ...] [--ttl SECONDS]   # cache one or more (auto-starts the agent)
+./tpm-secret unlock NAME [NAME ...] [--ttl MINUTES]   # cache one or more (auto-starts the agent)
 ./tpm-secret agent-status                  # see what's cached and for how long
 ./tpm-secret lock [NAME]                   # clear the cache early
 ```
+
+`--ttl` is in minutes (default 360 = 6h), e.g. `--ttl 30` for 30 minutes,
+`--ttl 60` for 1h, `--ttl 480` for 8h. Run `./tpm-secret unlock --help` for
+more examples.
 
 The agent only lives in memory for your session - nothing is written to
 disk, and everything is gone on logout/reboot.

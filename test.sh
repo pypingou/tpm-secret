@@ -40,14 +40,14 @@ echo "== agent: unlock, get, status, lock =="
 "$here/tpm-secret-agent" &
 agent_pid=$!
 sleep 0.3
-printf 'secretpin\n' | setsid "$here/tpm-secret" unlock pinned --ttl 60
+printf 'secretpin\n' | setsid "$here/tpm-secret" unlock pinned --ttl 1
 [[ "$(tpm_secret get pinned)" == "p4ssword" ]] || fail "cached value mismatch"
 tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinned'"
 tpm_secret lock pinned
 tpm_secret agent-status | grep -qx "No secrets currently cached." || fail "lock did not clear cache"
 
 echo "== agent: unlock several secrets at once =="
-printf 'secretpin\nsecretpin2\n' | setsid "$here/tpm-secret" unlock pinned pinned2 --ttl 60
+printf 'secretpin\nsecretpin2\n' | setsid "$here/tpm-secret" unlock pinned pinned2 --ttl 1
 [[ "$(tpm_secret get pinned)" == "p4ssword" ]] || fail "cached value mismatch for 'pinned'"
 [[ "$(tpm_secret get pinned2)" == "p4ssword2" ]] || fail "cached value mismatch for 'pinned2'"
 tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinned'"
