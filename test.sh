@@ -32,6 +32,10 @@ echo "== insert with pin =="
 printf 'p4ssword\np4ssword\nsecretpin\nsecretpin\n' | setsid "$here/tpm-secret" insert pinned
 tpm_secret list | grep -qx "pinned (pin-protected)" || fail "'pinned' not marked pin-protected"
 
+echo "== insert a second secret with a different pin =="
+printf 'p4ssword2\np4ssword2\nsecretpin2\nsecretpin2\n' | setsid "$here/tpm-secret" insert pinned2
+tpm_secret list | grep -qx "pinned2 (pin-protected)" || fail "'pinned2' not marked pin-protected"
+
 echo "== agent: unlock, get, status, lock =="
 "$here/tpm-secret-agent" &
 agent_pid=$!
@@ -42,9 +46,18 @@ tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinn
 tpm_secret lock pinned
 tpm_secret agent-status | grep -qx "No secrets currently cached." || fail "lock did not clear cache"
 
+echo "== agent: unlock several secrets at once =="
+printf 'secretpin\nsecretpin2\n' | setsid "$here/tpm-secret" unlock pinned pinned2 --ttl 60
+[[ "$(tpm_secret get pinned)" == "p4ssword" ]] || fail "cached value mismatch for 'pinned'"
+[[ "$(tpm_secret get pinned2)" == "p4ssword2" ]] || fail "cached value mismatch for 'pinned2'"
+tpm_secret agent-status | grep -q "^pinned:" || fail "agent-status missing 'pinned'"
+tpm_secret agent-status | grep -q "^pinned2:" || fail "agent-status missing 'pinned2'"
+tpm_secret lock
+
 echo "== delete =="
 tpm_secret delete nopin -f
 tpm_secret delete pinned -f
+tpm_secret delete pinned2 -f
 [[ "$(tpm_secret list)" == "No secrets stored." ]] || fail "secrets remained after delete"
 
 echo "All tests passed."

@@ -32,7 +32,7 @@ this exact TPM.
 (default 6h), so you don't retype the PIN on every `get`:
 
 ```
-./tpm-secret unlock NAME [--ttl SECONDS]   # cache it (auto-starts the agent)
+./tpm-secret unlock NAME [NAME ...] [--ttl SECONDS]   # cache one or more (auto-starts the agent)
 ./tpm-secret agent-status                  # see what's cached and for how long
 ./tpm-secret lock [NAME]                   # clear the cache early
 ```
