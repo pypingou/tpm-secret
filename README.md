@@ -17,6 +17,9 @@ this exact TPM.
   newgrp tss
   ```
 
+Run `./tpm-secret doctor` to check a system has everything it needs (tools
+installed, device present and accessible, and a working functional check).
+
 ## Usage
 
 ```
